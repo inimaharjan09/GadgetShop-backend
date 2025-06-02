@@ -5,9 +5,16 @@ export const getProducts = (req, res) => {
 }
 
 export const addProducts = (req, res) => {
-    return res.status(200).json({
-        message: 'addProducts'
-    });
+    try {
+        return res.status(200).json({
+            message: 'Product Added Successfully'
+        });
+    } catch (err) {
+        return res.status(400).json({
+            message: `${err}`
+        });
+        
+    }
 }
 
 export const getProduct = (req, res) => {
