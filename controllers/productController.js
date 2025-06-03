@@ -1,16 +1,77 @@
-export const getProducts = (req, res) => {
-    return res.status(200).json({
-        message: 'getAllProducts'
-    });
+import Product from "../models/Product.js";
+
+export const getProducts = async(req, res) => {
+    try {
+    const queryObject = { ...req.query };
+    const excludeFields = ['page', 'sort', 'limit', 'fields', 'skip'];
+    excludeFields.forEach(label => delete queryObject[label])
+
+        console.log(req.query);
+        //console.log(req.query.replace(/\b(gte|gt|lte|lt|eq)\b/g, match => `$${match}`));
+
+        let query = Product.find(queryObject);
+
+        if (req.query.search){
+            const searchText = req.query.search.toLowerCase();
+            if(categories.includes(searchText)){
+                queryObject.category = { $regex : searchText, $options: 'i' };
+
+            }else {
+                    queryObject.name = { $regex : searchText, $options: 'i' };
+                }
+        }
+
+        if(req.query.sort) {
+            const sorting = req.query.sort.split(/[\s,]+/).filter(Boolean).join(' ');
+            query.sort(sorting);
+        }
+
+        if(req.query.fields) {
+            const selects = req.query.fields.split(/[s,]+/).filter(Boolean).join(' ');
+            query.select(selects);
+       if (req.query.search){
+            const searchText = req.query.search.toLowerCase();
+            if(categories.includes(searchText)){
+                queryObject.category = { $regex : searchText, $options: 'i' };
+
+            }else {
+                    queryObject.name = { $regex : searchText, $options: 'i' };
+                }
+        }if (req.query.search){
+            const searchText = req.query.search.toLowerCase();
+            if(categories.includes(searchText)){
+                queryObject.category = { $regex : searchText, $options: 'i' };
+
+            }else {
+                    queryObject.name = { $regex : searchText, $options: 'i' };
+                }
+        } }
+        const page = req.query.page || 1;
+        const limit = req.query.limit || 10;
+        const skip = (page - 1) * 10;
+        
+        const products = await query.skip(skip).limit(limit);
+
+        return res.status(200).json(products);
+    } catch (err) {
+        return res.status(500).json({
+            message: `${err}`
+        });
+        
+    }
 }
 
-export const addProducts = (req, res) => {
+export const addProducts = async (req, res) => {
+    //console.log(req.body);
+const { name, price, description, category, stock, image } = req.body;
     try {
+        await Product.create({ name, price, description, category, stock, image
+        })
         return res.status(200).json({
             message: 'Product Added Successfully'
         });
     } catch (err) {
-        return res.status(400).json({
+        return res.status(500).json({
             message: `${err}`
         });
         
