@@ -1,5 +1,7 @@
 import mongoose from "mongoose";
 
+export const categories = [ "mobile", "camera", "laptop", "accessories" ];
+
 const productSchema = new mongoose.Schema(
   {
     name: {
@@ -16,13 +18,14 @@ const productSchema = new mongoose.Schema(
     },
     category: {
         type: String,
-        enum: [ "mobile", "camera", "laptop", "accessories" ],
+        enum: categories,
         required: true
     },
     stock: {
         type: Number,
-        required: true,
-        //min: 0
+    required: true,
+    default: 0,
+    min: 0
     },
     image: {
         type: String,

@@ -1,4 +1,5 @@
 import Product from "../models/Product.js";
+import fs from 'fs';
 
 export const getTop5 = (req, res, next) => {
     req.query.rating = { $gt: 4.5 };
@@ -11,10 +12,16 @@ export const getProducts = async(req, res) => {
     try {
     const queryObject = { ...req.query };
     const excludeFields = ['page', 'sort', 'limit', 'fields', 'skip'];
-    excludeFields.forEach(label => delete queryObject[label])
+    excludeFields.forEach(label => delete queryObject[label]);
 
-        console.log(req.query);
-        //console.log(req.query.replace(/\b(gte|gt|lte|lt|eq)\b/g, match => `$${match}`));
+    //  if (req.query.inStock === 'true') {
+    //         queryObject.stock = { $gt: 0 };
+    //     }
+
+        //console.log(req.query);
+        // let queryStr = JSON.stringify(queryObject);
+        // queryStr = queryStr.replace(/\b(gt|gte|lt|lte|eq|ne)\b/g, match => `$${match}`);
+        // const finalQuery = JSON.parse(queryStr);
 
         let query = Product.find(queryObject);
 
@@ -46,7 +53,7 @@ export const getProducts = async(req, res) => {
 
         return res.status(200).json(products);
     } catch (err) {
-        return res.status(500).json({
+        return res.status(400).json({
             message: `${err}`
         });
         
@@ -55,18 +62,25 @@ export const getProducts = async(req, res) => {
 
 export const addProducts = async (req, res) => {
     //console.log(req.body);
-const { name, price, description, category, stock, image } = req.body;
+const { name, price, description, category, stock } = req.body;
     try {
-        await Product.create({ name, price, description, category, stock, image
+        
+        await Product.create({ name,
+            price,
+            description,
+            category,
+            stock, 
+            image: req.image
         })
         return res.status(200).json({
             message: 'Product Added Successfully'
         });
     } catch (err) {
-        return res.status(500).json({
+        fs.unlink(`./uploads/${req.image}`, (imageErr) => {
+            return res.status(400).json({
             message: `${err}`
         });
-        
+        });
     }
 }
 
@@ -82,8 +96,23 @@ export const updateProduct = (req, res) => {
     });
 }
 
-export const removeProduct = (req, res) => {
-    return res.status(200).json({
-        message: 'removeProduct'
-    });
-}
+export const removeProduct = async (req, res) => {
+    const { id } = req.params;
+    try {
+        const isExist = await Product.findById(id);
+        if (!isExist) {
+            return res.status(400).json({ message: 'Product Not Found' });
+        }
+
+        fs.unlink(`./uploads/${isExist.image}`, async (imageErr) => {
+            if (imageErr) {
+                return res.status(400).json({ message: `${imageErr}` });
+            }
+
+            await Product.findByIdAndDelete(id);
+            return res.status(200).json({ message: 'Product Removed Successfully' });
+        });
+    } catch (err) {
+        return res.status(400).json({ message: `${err}` });
+    }
+};

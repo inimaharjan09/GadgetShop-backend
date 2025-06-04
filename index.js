@@ -2,6 +2,8 @@ import express from "express";
 import morgan from "morgan";
 import productRoutes from "./routes/productRoutes.js";
 import mongoose from "mongoose";
+import fileUpload from "express-fileupload";
+
 
 const app = express();
 
@@ -20,6 +22,12 @@ mongoose.connect('mongodb+srv://inima09:June14inima@cluster0.rmpnkba.mongodb.net
 //middleware
 app.use(morgan('dev'));
 app.use(express.json());
+app.use(fileUpload({
+    limits: { fileSize: 5 * 1024 * 1024 },
+    abortOnLimit: true
+}));
+
+app.use(express.static('uploads'));
 
 
 app.get('/', (req, res) => {
