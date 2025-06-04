@@ -1,5 +1,12 @@
 import Product from "../models/Product.js";
 
+export const getTop5 = (req, res, next) => {
+    req.query.rating = { $gt: 4.5 };
+    req.query.limit = 5;
+    req.query.sort = '-rating';
+    next();
+}
+
 export const getProducts = async(req, res) => {
     try {
     const queryObject = { ...req.query };
@@ -29,23 +36,8 @@ export const getProducts = async(req, res) => {
         if(req.query.fields) {
             const selects = req.query.fields.split(/[s,]+/).filter(Boolean).join(' ');
             query.select(selects);
-       if (req.query.search){
-            const searchText = req.query.search.toLowerCase();
-            if(categories.includes(searchText)){
-                queryObject.category = { $regex : searchText, $options: 'i' };
+     }
 
-            }else {
-                    queryObject.name = { $regex : searchText, $options: 'i' };
-                }
-        }if (req.query.search){
-            const searchText = req.query.search.toLowerCase();
-            if(categories.includes(searchText)){
-                queryObject.category = { $regex : searchText, $options: 'i' };
-
-            }else {
-                    queryObject.name = { $regex : searchText, $options: 'i' };
-                }
-        } }
         const page = req.query.page || 1;
         const limit = req.query.limit || 10;
         const skip = (page - 1) * 10;
