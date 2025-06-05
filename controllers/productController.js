@@ -1,10 +1,10 @@
-import Product from "../models/Product.js";
+
+import Product, { categories } from "../models/Product.js";
 import fs from 'fs';
 
 export const getTop5 = (req, res, next) => {
     req.query.rating = { $gt: 4.5 };
     req.query.limit = 5;
-    req.query.sort = '-rating';
     next();
 }
 
@@ -90,26 +90,46 @@ export const getProduct = (req, res) => {
     });
 }
 
-export const updateProduct = (req, res) => {
-    return res.status(200).json({
-        message: 'updateProduct'
-    });
+export const updateProduct = async (req, res) => {
+    const product = req.product;
+    const { name, price, description, category, stock } = req.body;
+    try {
+        product.name = name || product.name;
+        product.price = price || product.price;
+        product.description = description || product.description;
+        product.category = category || product.category;
+        product.stock = stock || product.stock;
+
+        if(req.image){
+            fs.unlink(`./uploads/${product.image}`, async (err) => {
+        product.image = req.image;
+        await product.save();
+            });
+        }else{
+            await product.save();
+        } 
+        
+        return res.status(200).json({
+            message: 'Product Updated Successfully'
+        });
+    } catch (err) {
+        fs.unlink(`./uploads/${req.image}`, (imageErr) => {
+            return res.status(400).json({
+            message: `${err}`
+        });
+        });
+    }
 }
 
 export const removeProduct = async (req, res) => {
-    const { id } = req.params;
+    const product = req.product;
     try {
-        const isExist = await Product.findById(id);
-        if (!isExist) {
-            return res.status(400).json({ message: 'Product Not Found' });
-        }
+        fs.unlink(`./uploads/${product.image}`, async (imageErr) => {
+            if (imageErr) return res.status(400).json({ 
+                message: `${imageErr}`
+            });
 
-        fs.unlink(`./uploads/${isExist.image}`, async (imageErr) => {
-            if (imageErr) {
-                return res.status(400).json({ message: `${imageErr}` });
-            }
-
-            await Product.findByIdAndDelete(id);
+            await Product.findByIdAndDelete(product._id);
             return res.status(200).json({ message: 'Product Removed Successfully' });
         });
     } catch (err) {
