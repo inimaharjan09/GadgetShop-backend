@@ -1,18 +1,25 @@
 import Joi from "joi";
 import { categories } from "../models/Product.js";
+import validate from 'express-joi-validation';
 
-// const fileSchema = Joi.object({
-//     originalname: Joi.string().required(),
-//     mimetype: Joi.string().valid('image/jpeg', 'image/png', 'image/jpg', 'image/webp', 'image/gif').required(),
-//     size: Joi.number().max(5 * 1024 * 1024).required(),
-// }); 
+export const validates = validate.createValidator({  });
+
+export const loginSchema = Joi.object({
+    email: Joi.string().email().required(),
+    password: Joi.string().min(4).max(40).required(),
+});
+
+export const registerSchema = Joi.object({
+    username: Joi.string().min(3).max(30).required(),
+    email: Joi.string().email().required(),
+    password: Joi.string().min(4).max(40).required(),
+});
 
 export const productValSchema = Joi.object({
     name: Joi.string().min(0).required(),
     price: Joi.number().required(),
-    description: Joi.string().min(0).required(),
+    description: Joi.string().required(),
     category: Joi.string().valid(...categories).required(),
     stock: Joi.number().min(0).required(),
-    // image:fileSchema.required(),
-    rating: Joi.number().default(0)
-});
+    rating: Joi.number(),
+}).unknown(true);
