@@ -4,7 +4,7 @@ import productRoutes from "./routes/productRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import mongoose from "mongoose";
 import fileUpload from "express-fileupload";
-
+import cors from "cors";
 
 const app = express();
 
@@ -12,7 +12,6 @@ const app = express();
 mongoose.connect('mongodb+srv://inima09:June14inima@cluster0.rmpnkba.mongodb.net/GShop')
 .then((val) => {
     //console.log(val);
-
     app.listen(5000, () => {
     console.log("DATABASE CONNECTED and SERVER IS LISTENING");
 });
@@ -21,6 +20,7 @@ mongoose.connect('mongodb+srv://inima09:June14inima@cluster0.rmpnkba.mongodb.net
 })
 
 //middleware
+app.use(cors());
 app.use(morgan('dev'));
 app.use(express.json());
 app.use(fileUpload({

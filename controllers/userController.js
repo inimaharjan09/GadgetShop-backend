@@ -16,7 +16,7 @@ export const login = async (req, res) => {
             message: 'Invalid Password'
         });
         const token = jwt.sign({ 
-            id: isExist._id ,
+            id: isExist.id ,
             role: isExist.role
         }, 'secret' );
 
@@ -25,7 +25,7 @@ export const login = async (req, res) => {
             email: isExist.email,
             role: isExist.role,
             username: isExist.username,
-            id: isExist._id
+            id: isExist.id
         });
 
     } catch (err) {
