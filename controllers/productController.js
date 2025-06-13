@@ -49,7 +49,7 @@ export const getProducts = async(req, res) => {
         const limit = req.query.limit || 10;
         const skip = (page - 1) * 10;
         
-        const products = await query.skip(skip).limit(limit);
+        const products = await query.skip(skip).limit(limit).select('name rating price stock image' );
 
         return res.status(200).json(products);
     } catch (err) {
