@@ -5,6 +5,7 @@ import {
   getProducts,
   getTop5,
   removeProduct,
+  reviewProduct,
   updateProduct,
 } from '../controllers/productController.js';
 import { fileCheck, updateFileCheck } from '../middlewares/checkFile.js';
@@ -35,5 +36,7 @@ router
   .patch(userCheck, adminCheck, checkId, updateFileCheck, updateProduct)
   .delete(userCheck, adminCheck, checkId, removeProduct)
   .all(notAllowed);
+
+router.route('/review/:id').patch(checkId, reviewProduct).all(notAllowed); //add the route hrere
 
 export default router;

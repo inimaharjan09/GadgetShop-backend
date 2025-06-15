@@ -10,7 +10,7 @@ export const getTop5 = (req, res, next) => {
 export const getProducts = async (req, res) => {
   try {
     const queryObject = { ...req.query };
-    const excludeFields = ['page', 'sort', 'limit', 'fields', 'skip'];
+    const excludeFields = ['page', 'sort', 'limit', 'fields', 'skip', 'search'];
     excludeFields.forEach((label) => delete queryObject[label]);
 
     //  if (req.query.inStock === 'true') {
@@ -21,9 +21,6 @@ export const getProducts = async (req, res) => {
     // let queryStr = JSON.stringify(queryObject);
     // queryStr = queryStr.replace(/\b(gt|gte|lt|lte|eq|ne)\b/g, match => `$${match}`);
     // const finalQuery = JSON.parse(queryStr);
-
-    let query = Product.find(queryObject);
-
     if (req.query.search) {
       const searchText = req.query.search.toLowerCase();
       if (categories.includes(searchText)) {
@@ -32,6 +29,8 @@ export const getProducts = async (req, res) => {
         queryObject.name = { $regex: searchText, $options: 'i' };
       }
     }
+    console.log(queryObject);
+    let query = Product.find(queryObject);
 
     if (req.query.sort) {
       const sorting = req.query.sort
@@ -140,6 +139,26 @@ export const removeProduct = async (req, res) => {
       await Product.findByIdAndDelete(product._id);
       return res.status(200).json({ message: 'Product Removed Successfully' });
     });
+  } catch (err) {
+    return res.status(400).json({ message: `${err}` });
+  }
+};
+
+export const reviewProduct = async (req, res) => {
+  const { id } = req.params;
+  const { username, rating, comment } = req.body;
+  console.log(req.body);
+  try {
+    const isExist = await Product.findById(id);
+    if (!isExist) return res.status(404).json({ message: 'Product not Found' });
+
+    isExist.reviews.push({ username, rating, comment });
+    const avgRating =
+      isExist.reviews.reduce((acc, curr) => acc + curr.rating, 0) /
+      isExist.reviews.length;
+    isExist.rating = avgRating;
+    await isExist.save();
+    return res.status(200).json({ message: 'review added successfully' });
   } catch (err) {
     return res.status(400).json({ message: `${err}` });
   }
