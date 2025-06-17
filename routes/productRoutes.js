@@ -37,6 +37,6 @@ router
   .delete(userCheck, adminCheck, checkId, removeProduct)
   .all(notAllowed);
 
-router.route('/review/:id').patch(checkId, reviewProduct).all(notAllowed); //add the route hrere
+router.route('/review/:id').patch(checkId, reviewProduct).all(notAllowed);
 
 export default router;
