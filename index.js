@@ -10,14 +10,15 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const app = express();
+const PORT = process.env.PORT || 5000;
 
 //database connect
 mongoose
   .connect(process.env.MONGO_URI)
   .then((val) => {
     //console.log(val);
-    app.listen(5000, () => {
-      console.log('DATABASE CONNECTED and SERVER IS LISTENING');
+    app.listen(PORT, () => {
+      console.log(`DATABASE CONNECTED and SERVER IS LISTENING on port ${PORT}`);
     });
   })
   .catch((err) => {
