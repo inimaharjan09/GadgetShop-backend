@@ -6,14 +6,14 @@ import orderRoutes from './routes/orderRoutes.js';
 import mongoose from 'mongoose';
 import fileUpload from 'express-fileupload';
 import cors from 'cors';
+import dotenv from 'dotenv';
+dotenv.config();
 
 const app = express();
 
 //database connect
 mongoose
-  .connect(
-    'mongodb+srv://inima09:June14inima@cluster0.rmpnkba.mongodb.net/GShop'
-  )
+  .connect(process.env.MONGO_URI)
   .then((val) => {
     //console.log(val);
     app.listen(5000, () => {
